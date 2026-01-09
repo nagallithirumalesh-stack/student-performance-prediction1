@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Student Predictor</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .password-toggle {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .password-toggle:hover {
+            color: var(--primary);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="register-container">
+        <div class="register-card">
+            <div class="register-header">
+                <div class="register-logo">🎓</div>
+                <h1 class="register-title">Create Account</h1>
+                <p class="register-subtitle">Join the Student Performance Prediction System</p>
+            </div>
+
+            <!-- Registration Form -->
+            <form id="registerForm" onsubmit="handleRegister(event)">
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <div class="input-group">
+                        <input type="text" id="fullName" class="form-input has-icon" placeholder="Enter your full name"
+                            required autocomplete="name">
+                        <i class="fa-solid fa-user input-icon"></i>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <div class="input-group">
+                        <input type="email" id="email" class="form-input has-icon" placeholder="Enter your email"
+                            required autocomplete="email">
+                        <i class="fa-solid fa-envelope input-icon"></i>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <div class="input-group">
+                            <input type="password" id="password" class="form-input has-icon"
+                                placeholder="Create password" required autocomplete="new-password" minlength="6">
+                            <i class="fa-solid fa-lock input-icon"></i>
+                            <i class="fa-solid fa-eye password-toggle" onclick="togglePassword('password', this)"
+                                title="Show/Hide Password"></i>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Confirm Password</label>
+                        <div class="input-group">
+                            <input type="password" id="confirmPassword" class="form-input has-icon"
+                                placeholder="Confirm password" required autocomplete="new-password" minlength="6">
+                            <i class="fa-solid fa-check-double input-icon"></i>
+                            <i class="fa-solid fa-eye password-toggle" onclick="togglePassword('confirmPassword', this)"
+                                title="Show/Hide Password"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Role</label>
+                    <div class="input-group">
+                        <select id="role" class="form-select" required style="padding-left: 2.75rem;">
+                            <option value="">Select your role</option>
+                            <option value="teacher">Teacher</option>
+                            <option value="admin">Administrator</option>
+                        </select>
+                        <i class="fa-solid fa-user-tag input-icon"></i>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Institution</label>
+                    <div class="input-group">
+                        <input type="text" id="institution" class="form-input has-icon"
+                            placeholder="Enter your institution name" required>
+                        <i class="fa-solid fa-school input-icon"></i>
+                    </div>
+                </div>
+
+                <div class="terms-checkbox">
+                    <input type="checkbox" id="terms" required>
+                    <label for="terms">
+                        I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
+                    </label>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    <span>Create Account</span> <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </form>
+
+            <div class="divider">
+                <span>or</span>
+            </div>
+
+            <div class="signin-link">
+                Already have an account? <a href="login.html">Sign in here</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="auth.js"></script>
+</body>
+
+</html>

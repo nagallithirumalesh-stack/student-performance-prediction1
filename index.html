@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Performance Prediction | Early Intervention System</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body class="landing-page">
+    <header class="header">
+        <nav class="nav-container">
+            <div class="logo">
+                <span class="logo-icon"><i class="fa-solid fa-graduation-cap"></i></span>
+                <span>Student Predictor</span>
+            </div>
+            <div class="nav-links-container">
+                <a href="login.html" class="btn btn-secondary btn-sm"><i class="fa-solid fa-right-to-bracket"></i> Log
+                    In</a>
+                <a href="register.html" class="btn btn-primary btn-sm"><i class="fa-solid fa-user-plus"></i> Get
+                    Started</a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="container hero-container">
+                <div class="hero-content">
+                    <div class="badge badge-success mb-3" style="font-size: 0.9rem; padding: 0.5rem 1rem;">
+                        <i class="fa-solid fa-sparkles"></i> AI-Powered Student Success
+                    </div>
+                    <h1 class="hero-title">
+                        Predict Performance.<br>
+                        <span class="text-gradient">Prevent Dropouts.</span>
+                    </h1>
+                    <p class="hero-subtitle">
+                        Leverage advanced machine learning to identify at-risk students early and provide targeted
+                        interventions that ensure academic success.
+                    </p>
+                    <div class="flex gap-2">
+                        <a href="register.html" class="btn btn-primary btn-lg">Start Free Trial <i
+                                class="fa-solid fa-arrow-right"></i></a>
+                        <a href="#features" class="btn btn-secondary btn-lg">Learn More</a>
+                    </div>
+                    <div class="hero-stats mt-4">
+                        <div class="stat-item">
+                            <span class="stat-number text-gradient">98%</span>
+                            <span class="stat-label">Accuracy Rate</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number text-gradient">50k+</span>
+                            <span class="stat-label">Students Tracked</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number text-gradient">15%</span>
+                            <span class="stat-label">Improvement</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="hero-image">
+                    <div class="hero-card card">
+                        <div class="card-header">
+                            <h3 class="card-title">Live Prediction Analysis</h3>
+                            <span class="badge badge-warning">Medium Risk</span>
+                        </div>
+                        <div class="chart-mockup">
+                            <!-- Simulated Chart Visual -->
+                            <div style="display: flex; align-items: flex-end; gap: 10px; height: 150px; padding: 10px;">
+                                <div
+                                    style="flex: 1; background: var(--primary-gradient); height: 40%; border-radius: 4px; opacity: 0.5;">
+                                </div>
+                                <div
+                                    style="flex: 1; background: var(--primary-gradient); height: 60%; border-radius: 4px; opacity: 0.7;">
+                                </div>
+                                <div
+                                    style="flex: 1; background: var(--primary-gradient); height: 85%; border-radius: 4px;">
+                                </div>
+                                <div
+                                    style="flex: 1; background: var(--primary-gradient); height: 55%; border-radius: 4px; opacity: 0.6;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features" class="section">
+            <div class="container">
+                <div class="section-header text-center">
+                    <h2 class="section-title justify-center">Why Choose Us?</h2>
+                    <p class="section-subtitle">Comprehensive tools for educators and administrators</p>
+                </div>
+                <div class="grid grid-3">
+                    <div class="card feature-card">
+                        <div class="feature-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                        <h3>Proactive Prediction</h3>
+                        <p class="text-secondary">Identify students who need help before they fall behind using our
+                            state-of-the-art Random Forest algorithm.</p>
+                    </div>
+                    <div class="card feature-card">
+                        <div class="feature-icon"><i class="fa-solid fa-chart-line"></i></div>
+                        <h3>Deep Analytics</h3>
+                        <p class="text-secondary">Visualize performance trends, attendance impact, and study habits with
+                            interactive dashboards.</p>
+                    </div>
+                    <div class="card feature-card">
+                        <div class="feature-icon"><i class="fa-solid fa-bullseye"></i></div>
+                        <h3>Smart Interventions</h3>
+                        <p class="text-secondary">Get automated, personalized recommendations for interventions based on
+                            specific risk factors.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="section">
+            <div class="container">
+                <div class="card cta-card text-center">
+                    <h2 class="mb-2">Ready to Transform Student Outcomes?</h2>
+                    <p class="text-secondary mb-4" style="max-width: 600px; margin-left: auto; margin-right: auto;">
+                        Join thousands of educators who are using data to make a difference in their students' lives.
+                    </p>
+                    <a href="register.html" class="btn btn-primary btn-lg">Get Started Now <i
+                            class="fa-solid fa-rocket"></i></a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer
+        style="border-top: 1px solid var(--border); padding: 2rem 0; margin-top: 2rem; background: rgba(0,0,0,0.2);">
+        <div class="container text-center">
+            <p class="text-secondary">&copy; 2024 Student Performance Prediction System. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Firebase SDKs (Compat/Legacy for easiest drop-in replacement) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="auth.js"></script>
+    <script>
+        // Simple check to show 'Dashboard' button if logged in
+        document.addEventListener('DOMContentLoaded', () => {
+            if (sessionManager.isLoggedIn()) {
+                const navLinks = document.querySelector('.nav-links-container');
+                navLinks.innerHTML = `
+                    <a href="dashboard.html" class="btn btn-primary btn-sm"><i class="fa-solid fa-gauge"></i> Go to Dashboard</a>
+                `;
+            }
+        });
+    </script>
+</body>
+
+</html>

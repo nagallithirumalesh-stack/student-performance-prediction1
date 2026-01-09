@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Student Predictor</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .password-toggle {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .password-toggle:hover {
+            color: var(--primary);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="register-container">
+        <!-- Reusing register-container for consistent centering/bg -->
+        <div class="register-card">
+            <!-- Reusing register-card for premium glassmorphism style -->
+            <div class="register-header">
+                <div class="register-logo">🎓</div>
+                <h1 class="register-title">Welcome Back</h1>
+                <p class="register-subtitle">Sign in to access the system</p>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <div class="input-group">
+                        <input type="email" id="email" class="form-input has-icon" placeholder="Enter your email"
+                            required autocomplete="email">
+                        <i class="fa-solid fa-envelope input-icon"></i>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <div class="input-group">
+                        <input type="password" id="password" class="form-input has-icon"
+                            placeholder="Enter your password" required autocomplete="current-password">
+                        <i class="fa-solid fa-lock input-icon"></i>
+                        <i class="fa-solid fa-eye password-toggle" onclick="togglePassword('password', this)"
+                            title="Show/Hide Password"></i>
+                    </div>
+                </div>
+
+                <div class="remember-forgot">
+                    <div class="terms-checkbox" style="margin-bottom: 0; padding: 0;">
+                        <input type="checkbox" id="rememberMe">
+                        <label for="rememberMe">Remember me</label>
+                    </div>
+                    <a href="#" class="forgot-link">Forgot password?</a>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+                    <span>Sign In</span> <i class="fa-solid fa-right-to-bracket"></i>
+                </button>
+
+                <!-- Demo Credentials Info -->
+                <div
+                    style="background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 8px; margin-top: 1.5rem; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.1);">
+                    <div
+                        style="color: var(--primary); font-weight: 600; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fa-solid fa-key"></i> Demo Credentials
+                    </div>
+                    <div style="display: grid; gap: 0.25rem; color: var(--text-secondary);">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Admin:</span> <span style="font-family: monospace;">admin@school.edu / admin123</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Teacher:</span> <span style="font-family: monospace;">teacher@school.edu /
+                                teacher123</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Login Buttons -->
+                <div class="quick-login-btns"
+                    style="margin-top: 1rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="quickLogin('admin')">
+                        <i class="fa-solid fa-user-shield"></i> Admin
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="quickLogin('teacher')">
+                        <i class="fa-solid fa-chalkboard-user"></i> Teacher
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="quickLogin('student')"
+                        style="grid-column: span 2;">
+                        <i class="fa-solid fa-user-graduate"></i> Student
+                    </button>
+                </div>
+            </form>
+
+            <div class="divider">
+                <span>or</span>
+            </div>
+
+            <div class="signin-link">
+                Don't have an account? <a href="register.html">Sign up here</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="auth.js"></script>
+</body>
+
+</html>

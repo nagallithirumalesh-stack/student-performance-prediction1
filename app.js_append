@@ -1,0 +1,79 @@
+
+// === Modal Functions ===
+function openAddStudentModal() {
+    document.getElementById('addStudentModal').classList.add('active');
+}
+
+function closeAddStudentModal() {
+    document.getElementById('addStudentModal').classList.remove('active');
+    document.getElementById('addStudentForm').reset();
+}
+
+// === CSV Import/Export ===
+function exportCSV() {
+    const headers = ['ID', 'Name', 'Attendance', 'Study Hours', 'Past Score', 'Predicted Score', 'Risk Level'];
+    const rows = students.map(s => [s.id || '', s.name, s.attendance, s.studyHours, s.pastScore, s.predictedScore, s.riskLevel]);
+
+    const csv = [headers, ...rows].map(row => row.join(',')).join('\n');
+
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'students_data.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+function importCSV(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async function (e) {
+        const text = e.target.result;
+        const lines = text.split('\n').slice(1); // Skip header
+
+        let count = 0;
+        for (const line of lines) {
+            if (!line.trim()) continue;
+
+            try {
+                const [id, name, attendance, studyHours, pastScore] = line.split(',');
+                // Simple validation
+                if(!name || !attendance) continue;
+
+                const predictedScore = predictScore(parseFloat(attendance), parseFloat(studyHours), parseFloat(pastScore));
+                const riskLevel = classifyRisk(predictedScore);
+
+                await db.collection("students").add({
+                    name: name.trim(),
+                    attendance: parseFloat(attendance),
+                    studyHours: parseFloat(studyHours),
+                    pastScore: parseFloat(pastScore),
+                    predictedScore,
+                    riskLevel,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                count++;
+            } catch (err) {
+                console.error("Error importing line:", line, err);
+            }
+        }
+        showNotification(`✅ Imported ${count} students successfully`, 'success');
+    };
+
+    reader.readAsText(file);
+}
+
+// Close modal on outside click
+document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById('addStudentModal');
+    if (modal) {
+        modal.addEventListener('click', (e) => {
+            if (e.target.id === 'addStudentModal') {
+                closeAddStudentModal();
+            }
+        });
+    }
+});
