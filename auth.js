@@ -161,6 +161,7 @@ async function handleLogin(event) {
         let msg = error.message;
         if (error.code === 'auth/user-not-found') msg = 'No user found with this email.';
         if (error.code === 'auth/wrong-password') msg = 'Incorrect password.';
+        if (error.code === 'auth/invalid-login-credentials') msg = 'Invalid email or password. Have you registered yet?';
         showNotification(`❌ ${msg}`, 'error');
     }
 }
