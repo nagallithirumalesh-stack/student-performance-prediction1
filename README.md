@@ -1,5 +1,4 @@
 # Student Performance Prediction & Early Intervention System
-
 A **Client-Side Web Application** designed to predict student academic performance using Machine Learning logic directly in the browser. It helps educators identify at-risk students and suggests proactive interventions.
 
 ![Dashboard Preview](dashboard_view.png) 
@@ -46,7 +45,7 @@ If you have Python installed:
 
 ## 🔐 Demo Credentials
 
-You can use these credentials to test the system (or register a new account):
+You can use these credentials to test the system. **Note: If these accounts don't exist, they will be automatically created for you when you log in!**
 
 *   **Admin**: `admin@school.edu` / `admin123`
 *   **Teacher**: `teacher@school.edu` / `teacher123`
