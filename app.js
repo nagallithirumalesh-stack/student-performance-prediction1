@@ -118,6 +118,11 @@ window.renderStudentsTable = function (syncedStudents) {
     renderTableDOM();
     updateCharts();
     updateInterventions();
+
+    // NEW: Trigger Role Manager specific updates
+    if (typeof roleManager !== 'undefined') {
+        roleManager.onDataUpdated(students);
+    }
 };
 
 window.updateDashboardStats = function (syncedStudents) {

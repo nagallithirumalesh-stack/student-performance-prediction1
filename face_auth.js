@@ -5,11 +5,37 @@
 
 const faceAuthManager = {
     stream: null,
+    isModelLoaded: false,
+    MODEL_URL: 'https://justadudewhohacks.github.io/face-api.js/models', // Public CDN for demo models
+
+    // Initialize Models
+    async loadModels() {
+        if (this.isModelLoaded) return;
+
+        try {
+            console.log("Loading Face API models...");
+            await faceapi.nets.ssdMobilenetv1.loadFromUri(this.MODEL_URL);
+            await faceapi.nets.faceLandmark68Net.loadFromUri(this.MODEL_URL);
+            await faceapi.nets.faceRecognitionNet.loadFromUri(this.MODEL_URL);
+            this.isModelLoaded = true;
+            console.log("Face API models loaded.");
+        } catch (error) {
+            console.error("Error loading Face API models:", error);
+            this.showStatus('error', 'Failed to load AI models. Refresh page.');
+        }
+    },
 
     // Initialize Webcam
     async startCamera() {
         const video = document.getElementById('face-video');
         if (!video) return;
+
+        // Load models if not ready
+        if (!this.isModelLoaded) {
+            this.showStatus('loading', 'Loading AI Models...');
+            await this.loadModels();
+            this.showStatus('neutral', 'Models Ready. requesting camera...');
+        }
 
         try {
             this.stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -30,101 +56,148 @@ const faceAuthManager = {
         }
     },
 
-    // Capture Image and Send to Backend
-    async captureAndVerify() {
-        const video = document.getElementById('face-video');
-        const canvas = document.createElement('canvas');
-
-        if (!video || !this.stream) return;
-
-        // Draw video frame to canvas
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        canvas.getContext('2d').drawImage(video, 0, 0);
-
-        // Convert to Blob
-        canvas.toBlob(async (blob) => {
-            const formData = new FormData();
-            formData.append('file', blob, 'capture.jpg');
-
-            // Show loading state
-            const btn = document.getElementById('capture-btn');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '🔍 Verifying...';
-            btn.disabled = true;
-
-            try {
-                // Send to backend
-                const response = await fetch('http://127.0.0.1:8000/api/face/recognize', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const result = await response.json();
-
-                if (result.status === 'success') {
-                    // Success Animation
-                    this.showStatus('success', `Verified: ${result.student_id}`);
-
-                    // Mark attendance visually
-                    setTimeout(() => {
-                        this.closeModal();
-                        showNotification(`Attendance Marked for ${result.student_id}`, 'success');
-                    }, 1500);
-
-                } else {
-                    this.showStatus('error', 'Face not recognized. Try again.');
-                }
-
-            } catch (error) {
-                console.error("API Error:", error);
-                this.showStatus('error', 'Server error. Is backend running?');
-            } finally {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }
-        }, 'image/jpeg');
-    },
-
-    // Register Face (For Setup/Demo)
+    // 1. Register Face
     async registerFace() {
         const video = document.getElementById('face-video');
-        const canvas = document.createElement('canvas');
-
-        if (!video || !this.stream) return;
-
-        // Current User
         const user = sessionManager.getCurrentUser();
-        if (!user || user.role !== 'student') {
-            alert("Only logged-in students can register a face.");
-            return;
-        }
 
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        canvas.getContext('2d').drawImage(video, 0, 0);
+        if (!user) return alert("Please log in first.");
 
-        canvas.toBlob(async (blob) => {
-            const formData = new FormData();
-            formData.append('file', blob, 'register.jpg');
-            formData.append('student_id', user.name); // Using name as ID for demo
+        const btn = document.getElementById('register-btn');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = 'Scan in progress...';
+        btn.disabled = true;
 
-            try {
-                const response = await fetch('http://127.0.0.1:8000/api/face/register', {
-                    method: 'POST',
-                    body: formData
-                });
+        try {
+            // Detect face
+            const detection = await faceapi.detectSingleFace(video).withFaceLandmarks().withFaceDescriptor();
 
-                if (response.ok) {
-                    showNotification('Face Registered Successfully!', 'success');
-                    this.closeModal();
-                } else {
-                    alert('Registration failed.');
-                }
-            } catch (err) {
-                alert('Server error during registration.');
+            if (!detection) {
+                this.showStatus('error', 'No face detected! Look at camera.');
+                return;
             }
-        });
+
+            // Convert Float32Array to standard array for Firestore
+            const descriptor = Array.from(detection.descriptor);
+
+            // Save to Firestore Users Collection
+            // We assume a 'users' collection exists where documents are keyed by email or contain it
+            // For this quick demo, we'll try to update the user profile found by email
+            const userQuery = await db.collection('users').where('email', '==', user.email).get();
+
+            if (!userQuery.empty) {
+                // Update existing
+                const docId = userQuery.docs[0].id;
+                await db.collection('users').doc(docId).update({
+                    faceDescriptor: descriptor,
+                    faceRegisteredAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            } else {
+                // Should not happen if auth flux works, but fallback creation 
+                await db.collection('users').add({
+                    ...user,
+                    faceDescriptor: descriptor,
+                    faceRegisteredAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            }
+
+            this.showStatus('success', 'Face ID Registered Successfully!');
+            setTimeout(() => this.closeModal(), 2000);
+
+        } catch (error) {
+            console.error("Registration failed:", error);
+            this.showStatus('error', 'Registration Error: ' + error.message);
+        } finally {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    },
+
+    // 2. Verify Attendance
+    async captureAndVerify() {
+        const video = document.getElementById('face-video');
+        const user = sessionManager.getCurrentUser();
+
+        if (!user) return alert("Please log in first.");
+
+        const btn = document.getElementById('capture-btn');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = 'Verifying...';
+        btn.disabled = true;
+
+        try {
+            // 1. Fetch User's Face Data
+            const userQuery = await db.collection('users').where('email', '==', user.email).get();
+            if (userQuery.empty) {
+                this.showStatus('error', 'No Face ID found. Please Register first.');
+                return;
+            }
+            const userData = userQuery.docs[0].data();
+            if (!userData.faceDescriptor) {
+                this.showStatus('error', 'No Face ID registered for this account.');
+                return;
+            }
+
+            // 2. Detect Live Face
+            const detection = await faceapi.detectSingleFace(video).withFaceLandmarks().withFaceDescriptor();
+            if (!detection) {
+                this.showStatus('error', 'No face detected in camera.');
+                return;
+            }
+
+            // 3. Compare
+            const distance = faceapi.euclideanDistance(userData.faceDescriptor, detection.descriptor);
+            console.log("Face Distance:", distance);
+
+            // Threshold: < 0.6 is usually a match
+            if (distance < 0.6) {
+                this.showStatus('success', `Verified! Match Score: ${((1 - distance) * 100).toFixed(0)}%`);
+                await this.markAttendanceSuccess(user, userData);
+            } else {
+                this.showStatus('error', 'Face does not match records.');
+            }
+
+        } catch (error) {
+            console.error("Verification error:", error);
+            this.showStatus('error', 'System error during verification.');
+        } finally {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    },
+
+    async markAttendanceSuccess(user, userData) {
+        // Find the "student" record if it exists to update attendance stats
+        // Also log an "attendance_logs" entry
+        try {
+            await db.collection('attendance_logs').add({
+                email: user.email,
+                name: user.name,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                method: 'face_auth',
+                status: 'present'
+            });
+
+            // Update student record attendance % (Mock update for demo joy)
+            const studentQuery = await db.collection('students').where('email', '==', user.email).get();
+            if (!studentQuery.empty) {
+                const studentDoc = studentQuery.docs[0];
+                const currentAtt = studentDoc.data().attendance || 0;
+                if (currentAtt < 100) {
+                    // Add 1% for fun
+                    await studentDoc.ref.update({ attendance: Math.min(100, currentAtt + 1) });
+                    showNotification('Attendance boosted! +1%', 'success');
+                }
+            }
+
+            setTimeout(() => {
+                this.closeModal();
+                showNotification(`✅ Attendance Marked for ${user.name}`, 'success');
+            }, 1000);
+
+        } catch (err) {
+            console.error("DB Error", err);
+        }
     },
 
     // UI Helpers
@@ -134,9 +207,20 @@ const faceAuthManager = {
         this.startCamera();
 
         // Toggle buttons based on mode
-        document.getElementById('capture-btn').style.display = mode === 'verify' ? 'block' : 'none';
-        document.getElementById('register-btn').style.display = mode === 'register' ? 'block' : 'none';
-        document.getElementById('face-modal-title').textContent = mode === 'verify' ? 'Face Attendance' : 'Register Face ID';
+        const captureBtn = document.getElementById('capture-btn');
+        const registerBtn = document.getElementById('register-btn');
+
+        if (mode === 'register') {
+            captureBtn.style.display = 'none';
+            registerBtn.style.display = 'inline-flex';
+            document.getElementById('face-modal-title').textContent = 'Register Face ID';
+        } else {
+            captureBtn.style.display = 'inline-flex';
+            registerBtn.style.display = 'none';
+            document.getElementById('face-modal-title').textContent = 'Mark Face Attendance';
+        }
+
+        this.showStatus('neutral', 'Align face in camera');
     },
 
     closeModal() {
@@ -150,6 +234,11 @@ const faceAuthManager = {
         statusEl.textContent = msg;
         statusEl.className = `face-status status-${type}`;
         statusEl.style.display = 'block';
+
+        // Dynamic colors handled by CSS classes or inline here for speed
+        if (type === 'success') statusEl.style.color = '#10B981';
+        else if (type === 'error') statusEl.style.color = '#EF4444';
+        else statusEl.style.color = '#b8b8d1';
     }
 };
 
