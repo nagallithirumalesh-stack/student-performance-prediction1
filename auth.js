@@ -158,11 +158,59 @@ async function handleLogin(event) {
 
     } catch (error) {
         console.error('Login Error:', error);
+
+        // CHECK FOR DEMO ACCOUNTS
+        // If the error is "user-not-found" or "invalid-credentails" AND it matches our demo emails
+        if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-login-credentials' || error.code === 'auth/wrong-password') {
+            const demoAccounts = {
+                'admin@school.edu': { password: 'admin123', role: 'admin', name: 'Admin User' },
+                'teacher@school.edu': { password: 'teacher123', role: 'teacher', name: 'Teacher User' },
+                'student@school.edu': { password: 'student123', role: 'student', name: 'Student User' },
+                // Allow fallback for these specific passwords even if error is just wrong password (rare edge case in some providers)
+            };
+
+            if (demoAccounts[email] && demoAccounts[email].password === password) {
+                // It is a demo account attempt that failed. Let's auto-create it!
+                await autoCreateDemoUser(email, demoAccounts[email]);
+                return; // Exit, autoCreate handles the rest
+            }
+        }
+
         let msg = error.message;
         if (error.code === 'auth/user-not-found') msg = 'No user found with this email.';
         if (error.code === 'auth/wrong-password') msg = 'Incorrect password.';
-        if (error.code === 'auth/invalid-login-credentials') msg = 'Invalid email or password. Have you registered yet?';
+        if (error.code === 'auth/invalid-login-credentials') msg = 'Invalid email or password.';
         showNotification(`❌ ${msg}`, 'error');
+    }
+}
+
+// Helper: Auto-Create Demo User on first login attempt
+async function autoCreateDemoUser(email, userData) {
+    showNotification('⚙️ Setting up demo account for the first time...', 'info');
+
+    try {
+        // 1. Create Auth User
+        const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, userData.password);
+        const user = userCredential.user;
+
+        // 2. Create Firestore Profile
+        await db.collection("users").doc(user.uid).set({
+            name: userData.name,
+            email: email,
+            role: userData.role,
+            institution: 'Demo University',
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        // 3. Update Profile
+        await user.updateProfile({ displayName: userData.name });
+
+        showNotification(`✅ Demo ${userData.role} account created! Logging in...`, 'success');
+        // Auth state listener will handle redirect
+
+    } catch (err) {
+        console.error("Failed to auto-create demo user:", err);
+        showNotification('❌ Failed to set up demo account. Please register manually.', 'error');
     }
 }
 
